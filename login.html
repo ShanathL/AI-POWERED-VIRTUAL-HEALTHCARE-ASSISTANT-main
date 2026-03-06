@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - MIRA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ojuju:wght@600&display=swap" rel="stylesheet">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(1200px 700px at 20% 10%, #e9fbff 0%, rgba(233, 251, 255, 0) 60%),
+                  radial-gradient(1000px 650px at 80% 30%, #d7f5ff 0%, rgba(215, 245, 255, 0) 55%),
+                  linear-gradient(180deg, #bdeeff 0%, #cfefff 30%, #ffffff 100%);
+      color: #0b1220;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      animation: fadeInDown 520ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      transition: box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    header.is-scrolled {
+      background: rgba(255, 255, 255, 0.68);
+      border-bottom-color: rgba(15, 23, 42, 0.10);
+      box-shadow: 0 18px 50px rgba(2, 8, 23, 0.10);
+    }
+
+    .header-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: rgba(11, 18, 32, 0.7);
+    }
+
+    .top-nav a {
+      color: rgba(11, 18, 32, 0.72);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(10px);
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    .top-nav a:hover {
+      background: rgba(255, 255, 255, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .header-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transform-origin: 100% 50%;
+      transition: transform 220ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 220ms ease;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.98);
+      pointer-events: none;
+    }
+
+    header.is-actions-visible .header-actions {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    header.is-scrolled.is-actions-visible .header-actions {
+      transform: translateY(0) scale(1.02);
+    }
+
+    .header-actions .login-btn,
+    .header-actions .signup-btn {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      box-shadow: 0 14px 30px rgba(2, 8, 23, 0.12);
+    }
+
+    .header-actions .login-btn::after {
+      display: none;
+    }
+
+    .logo {
+      font-family: 'Ojuju', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      -webkit-text-stroke: 1px rgba(11, 18, 32, 0.9);
+    }
+
+    .shell {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 24px 64px 24px;
+    }
+
+    .hero {
+      margin: 56px auto 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      align-items: center;
+      max-width: 760px;
+    }
+
+    .hero-card {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: 0 24px 60px rgba(2, 8, 23, 0.10);
+      border-radius: 18px;
+      padding: 28px 28px;
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 620ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+    }
+
+    .hero-card.muted {
+      background: rgba(255, 255, 255, 0.55);
+      animation-delay: 90ms;
+    }
+
+    .visual-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 320px;
+      animation-delay: 110ms;
+    }
+
+    .visual-card::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: conic-gradient(from 180deg at 50% 50%,
+        rgba(85, 214, 255, 0.0) 0deg,
+        rgba(85, 214, 255, 0.75) 70deg,
+        rgba(106, 164, 255, 0.65) 140deg,
+        rgba(166, 255, 234, 0.65) 220deg,
+        rgba(85, 214, 255, 0.0) 360deg
+      );
+      opacity: 0.55;
+      filter: blur(10px);
+      animation: haloSpin 10s linear infinite;
+    }
+
+    .visual-card::after {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: 17px;
+      background: radial-gradient(700px 350px at 20% 15%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.55) 40%, rgba(255,255,255,0.35) 100%);
+      pointer-events: none;
+    }
+
+    .visual-inner {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .mini-headline {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: rgba(11, 18, 32, 0.88);
+      margin-bottom: 6px;
+    }
+
+    .mini-copy {
+      font-size: 13px;
+      color: rgba(11, 18, 32, 0.68);
+    }
+
+    .illustration {
+      margin-top: 8px;
+      width: 100%;
+      height: 220px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.35);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .illustration svg {
+      width: 92%;
+      max-width: 420px;
+      height: auto;
+    }
+
+    .about-wrap {
+      margin-top: 36px;
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      padding: 78px 0;
+      background: radial-gradient(900px 520px at 20% 15%, rgba(85, 214, 255, 0.22) 0%, rgba(85, 214, 255, 0) 55%),
+                  radial-gradient(900px 520px at 80% 30%, rgba(106, 164, 255, 0.20) 0%, rgba(106, 164, 255, 0) 60%),
+                  linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.75) 25%, rgba(255,255,255,0.9) 100%);
+      border-top: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
+    .about-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .about-card {
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.70);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      box-shadow: 0 30px 80px rgba(2, 8, 23, 0.10);
+      padding: 28px 28px;
+      backdrop-filter: blur(10px);
+      min-height: 55vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .about-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: rgba(11, 18, 32, 0.92);
+    }
+
+    .about-text {
+      font-size: 15px;
+      color: rgba(11, 18, 32, 0.74);
+      line-height: 1.8;
+      max-width: 72ch;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    .about-item {
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.60);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      padding: 14px 14px;
+      box-shadow: 0 18px 40px rgba(2, 8, 23, 0.08);
+    }
+
+    .about-item b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: rgba(11, 18, 32, 0.88);
+    }
+
+    .about-item span {
+      font-size: 13px;
+      color: rgba(11, 18, 32, 0.70);
+      line-height: 1.6;
+    }
+
+    .badge {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      box-shadow: 0 18px 40px rgba(2, 8, 23, 0.10);
+      font-size: 12px;
+      color: rgba(11, 18, 32, 0.78);
+      backdrop-filter: blur(10px);
+      transform: translateZ(0);
+      animation: badgeFloat 6.5s ease-in-out infinite;
+    }
+
+    .badge svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.9;
+    }
+
+    .badge.one { left: 18px; top: 18px; animation-delay: 0ms; }
+    .badge.two { right: 18px; bottom: 18px; animation-delay: 700ms; }
+
+    .sparkle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(98, 243, 255, 0.9) 0%, rgba(98, 243, 255, 0) 70%);
+      opacity: 0.8;
+      animation: twinkle 3.2s ease-in-out infinite;
+      filter: blur(0.2px);
+    }
+
+    .sparkle.s1 { left: 14%; top: 46%; animation-delay: 0.2s; }
+    .sparkle.s2 { left: 68%; top: 38%; animation-delay: 1.1s; }
+    .sparkle.s3 { left: 52%; top: 70%; animation-delay: 1.9s; }
+
+    .hero h1 {
+      font-size: 44px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0 0 10px 0;
+    }
+
+    .hero p {
+      margin: 0 0 18px 0;
+      color: rgba(11, 18, 32, 0.75);
+      font-size: 15px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      color: rgba(11, 18, 32, 0.78);
+      font-size: 12px;
+      line-height: 1;
+      box-shadow: 0 12px 26px rgba(2, 8, 23, 0.06);
+    }
+
+    .chip svg {
+      width: 14px;
+      height: 14px;
+      flex: 0 0 auto;
+      opacity: 0.9;
+    }
+
+    .trust {
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(11, 18, 32, 0.62);
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(2, 8, 23, 0.55);
+      backdrop-filter: blur(6px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.96);
+      padding: 40px;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 16px;
+      box-shadow: 0 30px 80px rgba(2, 8, 23, 0.35);
+      position: relative;
+      transform: translateY(8px);
+      opacity: 0;
+      transition: transform 160ms ease, opacity 160ms ease;
+      border: 1px solid rgba(15, 23, 42, 0.10);
+    }
+
+    .modal-overlay.is-open .modal-content {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .modal-content h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      color: #0b1220;
+      letter-spacing: -0.01em;
+    }
+
+    .modal-subtitle {
+      text-align: center;
+      margin: -22px 0 20px 0;
+      font-size: 13px;
+      color: rgba(11, 18, 32, 0.65);
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.16);
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .modal-content input:focus {
+      border-color: #0077aa;
+      box-shadow: 0 0 0 4px rgba(0, 119, 170, 0.15);
+    }
+
+    .field-error {
+      margin: -14px 0 14px 0;
+      font-size: 12px;
+      color: #b42318;
+      display: none;
+    }
+
+    .form-error {
+      margin: 0 0 16px 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fee4e2;
+      color: #7a271a;
+      font-size: 13px;
+      display: none;
+    }
+
+    .form-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin: -6px 0 16px 0;
+      font-size: 13px;
+    }
+
+    .form-row label {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      user-select: none;
+    }
+
+    .form-row a {
+      color: #0077aa;
+      text-decoration: none;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .form-row a:hover {
+      text-decoration: underline;
+    }
+
+    .modal-content button[type="submit"] {
+      width: 100%;
+      background: linear-gradient(135deg, #0077aa 0%, #0a4aa6 100%);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: transform 120ms ease, filter 120ms ease;
+    }
+
+    .modal-content button[type="submit"]:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    .modal-content button[type="submit"][disabled] {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .or-divider {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 14px;
+      color: rgba(11, 18, 32, 0.55);
+      position: relative;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 42%;
+      height: 1px;
+      background: rgba(15, 23, 42, 0.12);
+    }
+
+    .or-divider::before { left: 0; }
+    .or-divider::after { right: 0; }
+
+    .g_id_signin {
+      display: flex;
+      justify-content: center;
+    }
+
+    .signup-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .signup-link a {
+      color: #0077aa;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 16px;
+      font-size: 24px;
+      color: rgba(11, 18, 32, 0.65);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      transition: background 120ms ease, color 120ms ease;
+    }
+
+    .close-btn:hover {
+      background: rgba(15, 23, 42, 0.06);
+      color: rgba(11, 18, 32, 0.85);
+    }
+
+    /* Login trigger button */
+    .login-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(11, 18, 32, 0.96) 0%, rgba(11, 18, 32, 0.86) 100%);
+      color: #fff;
+      padding: 12px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 18px 40px rgba(2, 8, 23, 0.18);
+      transition: transform 120ms ease, filter 120ms ease;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-btn::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.20) 45%, rgba(255,255,255,0) 70%);
+      transform: translateX(-120%);
+      transition: transform 700ms ease;
+    }
+
+    .login-btn:hover {
+      filter: brightness(1.02);
+      transform: translateY(-1px);
+    }
+
+    .login-btn:hover::after {
+      transform: translateX(120%);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .signup-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      color: rgba(11, 18, 32, 0.92);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      box-shadow: 0 18px 40px rgba(2, 8, 23, 0.08);
+      transition: transform 120ms ease, background 120ms ease, filter 120ms ease;
+    }
+
+    .signup-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      filter: brightness(1.01);
+      transform: translateY(-1px);
+    }
+
+    .signup-btn:active {
+      transform: translateY(0);
+    }
+
+    .bg-vectors {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-vectors::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.45;
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.10) 1px, rgba(0,0,0,0) 1.2px);
+      background-size: 22px 22px;
+      mask-image: radial-gradient(800px 520px at 50% 20%, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%);
+      animation: gridPulse 7s ease-in-out infinite;
+    }
+
+    .bg-vectors svg {
+      position: absolute;
+      opacity: 0.9;
+      filter: drop-shadow(0 18px 40px rgba(2, 8, 23, 0.10));
+      transform-origin: 50% 50%;
+    }
+
+    .vec-1 { left: -140px; top: -120px; width: 420px; height: 420px; opacity: 0.55; animation: float1 9.5s ease-in-out infinite; }
+    .vec-2 { right: -180px; top: 120px; width: 520px; height: 520px; opacity: 0.45; animation: float2 12s ease-in-out infinite; }
+    .vec-3 { left: 14%; bottom: -220px; width: 620px; height: 620px; opacity: 0.35; animation: float3 14s ease-in-out infinite; }
+
+    main { position: relative; z-index: 1; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+      50% { transform: translate3d(14px, 10px, 0) rotate(6deg); }
+    }
+
+    @keyframes float2 {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+      50% { transform: translate3d(-16px, 12px, 0) rotate(-5deg); }
+    }
+
+    @keyframes float3 {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+      50% { transform: translate3d(10px, -14px, 0) rotate(4deg); }
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.28; transform: translate3d(0, 0, 0); }
+      50% { opacity: 0.48; transform: translate3d(0, -6px, 0); }
+    }
+
+    @keyframes haloSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes badgeFloat {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(0, -8px, 0); }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.25; transform: scale(0.9); }
+      50% { opacity: 0.9; transform: scale(1.15); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      header, .hero-card { animation: none !important; }
+      .bg-vectors svg { animation: none !important; }
+      .login-btn::after { transition: none !important; }
+      .bg-vectors::before { animation: none !important; }
+      .visual-card::before { animation: none !important; }
+      .badge, .sparkle { animation: none !important; }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 860px) {
+      .hero { margin-top: 28px; max-width: 100%; }
+      .hero h1 { font-size: 36px; }
+      .hero-card { padding: 22px; }
+    }
+
+    @media (max-width: 620px) {
+      .about-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Decorative vectors -->
+  <div class="bg-vectors" aria-hidden="true">
+    <svg class="vec-1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#55d6ff" stop-opacity="0.95"/>
+          <stop offset="1" stop-color="#1b8cff" stop-opacity="0.65"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g1)" d="M44.2,-67.3C57.5,-60.1,68.6,-48.3,74.5,-34.6C80.4,-20.9,81.2,-5.3,78.2,10.1C75.2,25.4,68.4,40.5,57.1,52.9C45.9,65.3,30.2,75,14.1,77.2C-2,79.4,-18.4,74.2,-32.2,64.7C-46.1,55.2,-57.5,41.3,-65.9,25.8C-74.4,10.2,-79.8,-6.9,-77.1,-23.1C-74.3,-39.3,-63.3,-54.6,-49.2,-61.5C-35.2,-68.4,-18.1,-67,0.1,-67.2C18.3,-67.4,36.6,-69.1,44.2,-67.3Z" transform="translate(100 100)"/>
+    </svg>
+    <svg class="vec-2" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g2" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#a6ffea" stop-opacity="0.85"/>
+          <stop offset="1" stop-color="#6aa4ff" stop-opacity="0.55"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g2)" d="M47.3,-71.4C61.6,-64.6,73.7,-52,79.1,-36.9C84.6,-21.7,83.3,-4,79.4,13.3C75.4,30.6,68.7,47.6,56.8,60.6C44.9,73.5,27.9,82.4,10.6,84.4C-6.6,86.4,-24,81.4,-37.9,71.4C-51.7,61.4,-62.1,46.3,-70.2,30.3C-78.4,14.3,-84.3,-2.6,-82,-19C-79.6,-35.4,-69,-51.3,-54.9,-58.6C-40.8,-65.9,-23.2,-64.7,-6.3,-55.1C10.6,-45.5,21.1,-78.2,47.3,-71.4Z" transform="translate(110 110)"/>
+    </svg>
+    <svg class="vec-3" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g3" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#b8c7ff" stop-opacity="0.6"/>
+          <stop offset="1" stop-color="#62f3ff" stop-opacity="0.45"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g3)" d="M54.5,-78.6C69.1,-73.3,78.7,-57.4,83.2,-40.8C87.6,-24.2,86.9,-7,82.7,9.3C78.5,25.6,70.8,40.9,59.2,54.7C47.6,68.5,32.2,80.8,14.8,84.9C-2.6,89,-22.1,84.9,-37.6,75.3C-53.1,65.8,-64.5,50.8,-73.1,34.5C-81.7,18.2,-87.6,0.6,-84.9,-15.8C-82.3,-32.2,-71.2,-47.4,-57.2,-53.6C-43.2,-59.8,-26.2,-57,-9.2,-62C7.8,-67,15.6,-79.8,54.5,-78.6Z" transform="translate(120 120)"/>
+    </svg>
+  </div>
+
+  <header id="siteHeader">
+    <div class="header-inner">
+      <div class="logo">MIRA</div>
+      <div class="header-right">
+        <nav class="top-nav" aria-label="Top navigation">
+          <a href="#about">About us</a>
+        </nav>
+        <div class="header-actions" aria-label="Account actions">
+          <button class="login-btn" type="button" onclick="openLogin()">Login</button>
+          <a class="signup-btn" href="signup.html">Sign up</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-card">
+        <h1>Your health, simplified.</h1>
+        <p>Sign in to continue to MIRA—your virtual healthcare assistant for quick guidance, symptom support, and next steps.</p>
+        <div class="hero-actions">
+          <button class="login-btn" onclick="openLogin()">Login</button>
+          <a class="signup-btn" href="signup.html">Sign up</a>
+        </div>
+        <div class="chips" aria-label="Highlights">
+          <div class="chip">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 22s8-4.5 8-12V6l-8-3-8 3v4c0 7.5 8 12 8 12Z" stroke="rgba(10, 74, 166, 0.9)" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M9.2 12.2l1.9 1.9 3.9-4.6" stroke="rgba(0, 119, 170, 0.95)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Private by design
+          </div>
+          <div class="chip">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2v6" stroke="rgba(0, 119, 170, 0.95)" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M6.5 5.5 10 9" stroke="rgba(10, 74, 166, 0.9)" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M17.5 5.5 14 9" stroke="rgba(10, 74, 166, 0.9)" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M5 22h14" stroke="rgba(15, 23, 42, 0.55)" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M12 9c-3.6 0-6.5 2.7-6.5 6.1 0 2.1 1.1 3.9 2.8 5h7.4c1.7-1.1 2.8-2.9 2.8-5C18.5 11.7 15.6 9 12 9Z" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+            Fast answers
+          </div>
+          <div class="chip">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 21s-7-4.2-7-10.6C5 6.8 7.7 4 12 4s7 2.8 7 6.4C19 16.8 12 21 12 21Z" stroke="rgba(10, 74, 166, 0.9)" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M12 8.6v5" stroke="rgba(0, 119, 170, 0.95)" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M9.5 11.1h5" stroke="rgba(0, 119, 170, 0.95)" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Next-step guidance
+          </div>
+        </div>
+        <div class="trust">Tip: Use Google Sign‑In for the quickest start.</div>
+      </div>
+      <div class="hero-card visual-card muted" aria-label="MIRA preview">
+        <div class="visual-inner">
+          <div>
+            <div class="mini-headline">A calmer way to get health guidance</div>
+            <div class="mini-copy">MIRA turns your questions into clear next steps—quickly and respectfully.</div>
+          </div>
+
+          <div class="illustration" aria-hidden="true">
+            <div class="sparkle s1"></div>
+            <div class="sparkle s2"></div>
+            <div class="sparkle s3"></div>
+
+            <div class="badge one">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22s8-4.5 8-12V6l-8-3-8 3v4c0 7.5 8 12 8 12Z" stroke="rgba(10, 74, 166, 0.9)" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M9.2 12.2l1.9 1.9 3.9-4.6" stroke="rgba(0, 119, 170, 0.95)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Private
+            </div>
+
+            <div class="badge two">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 21s-7-4.2-7-10.6C5 6.8 7.7 4 12 4s7 2.8 7 6.4C19 16.8 12 21 12 21Z" stroke="rgba(10, 74, 166, 0.9)" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M12 8.6v5" stroke="rgba(0, 119, 170, 0.95)" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M9.5 11.1h5" stroke="rgba(0, 119, 170, 0.95)" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              Helpful
+            </div>
+
+            <svg viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="ill-g1" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#55d6ff" stop-opacity="0.55"/>
+                  <stop offset="1" stop-color="#6aa4ff" stop-opacity="0.35"/>
+                </linearGradient>
+                <linearGradient id="ill-g2" x1="1" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#a6ffea" stop-opacity="0.55"/>
+                  <stop offset="1" stop-color="#1b8cff" stop-opacity="0.35"/>
+                </linearGradient>
+                <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="6" result="b"/>
+                  <feMerge>
+                    <feMergeNode in="b"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <circle cx="120" cy="70" r="52" fill="url(#ill-g1)" filter="url(#soft)"/>
+              <circle cx="404" cy="62" r="44" fill="url(#ill-g2)" filter="url(#soft)"/>
+
+              <g transform="translate(60,68)">
+                <rect x="0" y="0" rx="18" ry="18" width="250" height="78" fill="rgba(255,255,255,0.72)" stroke="rgba(15,23,42,0.10)"/>
+                <circle cx="34" cy="39" r="14" fill="rgba(0,119,170,0.16)"/>
+                <path d="M34 30v18M25 39h18" stroke="rgba(0,119,170,0.75)" stroke-width="2.2" stroke-linecap="round"/>
+                <rect x="62" y="24" rx="8" ry="8" width="165" height="10" fill="rgba(11,18,32,0.14)"/>
+                <rect x="62" y="44" rx="8" ry="8" width="130" height="10" fill="rgba(11,18,32,0.10)"/>
+              </g>
+
+              <g transform="translate(210,146)">
+                <rect x="0" y="0" rx="18" ry="18" width="250" height="78" fill="rgba(255,255,255,0.72)" stroke="rgba(15,23,42,0.10)"/>
+                <circle cx="34" cy="39" r="14" fill="rgba(10,74,166,0.14)"/>
+                <path d="M34 30c6 0 10 4 10 10 0 9-10 13-10 13s-10-4-10-13c0-6 4-10 10-10Z" fill="rgba(10,74,166,0.55)"/>
+                <rect x="62" y="24" rx="8" ry="8" width="170" height="10" fill="rgba(11,18,32,0.14)"/>
+                <rect x="62" y="44" rx="8" ry="8" width="150" height="10" fill="rgba(11,18,32,0.10)"/>
+              </g>
+
+              <path d="M90 225c58 26 122 26 190 0 72-28 140-34 206-18" fill="none" stroke="rgba(10,74,166,0.18)" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="mini-copy" style="display:flex; gap:10px; flex-wrap:wrap;">
+            <span class="chip">No downloads</span>
+            <span class="chip">Quick sign‑in</span>
+            <span class="chip">Mobile‑friendly</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <section id="about" class="about-wrap" aria-label="About us">
+    <div class="about-inner">
+      <div class="about-card">
+        <div class="about-title">About us</div>
+        <div class="about-text">
+          MIRA is a virtual healthcare assistant designed to make it easier to understand symptoms, organize questions, and decide on practical next steps.
+          It’s not a replacement for a clinician—but it can help you get clarity faster.
+        </div>
+        <div class="about-grid" role="list" aria-label="MIRA highlights">
+          <div class="about-item" role="listitem">
+            <b>Clear guidance</b>
+            <span>Structured suggestions that are easy to follow.</span>
+          </div>
+          <div class="about-item" role="listitem">
+            <b>Privacy-first</b>
+            <span>Designed to minimize friction and keep things simple.</span>
+          </div>
+          <div class="about-item" role="listitem">
+            <b>Quick access</b>
+            <span>Works smoothly on desktop and mobile.</span>
+          </div>
+          <div class="about-item" role="listitem">
+            <b>Supportive tone</b>
+            <span>Calm, respectful language—even when you’re worried.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal-content" role="document">
+      <button class="close-btn" type="button" aria-label="Close login" onclick="closeLogin()">&times;</button>
+      <h2 id="loginTitle">Login to Your Account</h2>
+      <div class="modal-subtitle">Welcome back—let’s get you to the right info.</div>
+      <form id="loginForm" novalidate>
+        <div id="formError" class="form-error" role="alert" aria-live="polite"></div>
+
+        <label class="sr-only" for="email">Email Address</label>
+        <input id="email" name="email" type="email" placeholder="Email Address" autocomplete="email" required />
+        <div id="emailError" class="field-error" aria-live="polite"></div>
+
+        <label class="sr-only" for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Password" autocomplete="current-password" minlength="6" required />
+        <div id="passwordError" class="field-error" aria-live="polite"></div>
+
+        <div class="form-row">
+          <label>
+            <input id="rememberMe" name="rememberMe" type="checkbox" />
+            Remember me
+          </label>
+          <a href="#" id="forgotPasswordLink">Forgot password?</a>
+        </div>
+
+        <button id="loginSubmit" type="submit">Login</button>
+      </form>
+
+      <div class="or-divider">or</div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-shape="pill"
+           data-theme="outline"
+           data-text="signin_with"
+           data-size="large"
+           data-logo_alignment="left">
+      </div>
+
+      <div id="g_id_onload"
+           data-client_id="1008846842496-ec9n1qnqet5bf6h97t45bs7rlncr62dg.apps.googleusercontent.com"
+           data-context="signin"
+           data-ux_mode="popup"
+           data-callback="handleCredentialResponse">
+      </div>
+
+      <div class="signup-link">
+        Don't have an account? <a href="signup.html">Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const siteHeader = document.getElementById('siteHeader');
+    const modal = document.getElementById('loginModal');
+    const loginForm = document.getElementById('loginForm');
+    const emailEl = document.getElementById('email');
+    const passwordEl = document.getElementById('password');
+    const rememberMeEl = document.getElementById('rememberMe');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const submitBtn = document.getElementById('loginSubmit');
+    const formErrorEl = document.getElementById('formError');
+    const emailErrorEl = document.getElementById('emailError');
+    const passwordErrorEl = document.getElementById('passwordError');
+
+    let lastActiveElement = null;
+
+    function updateHeaderScrolled() {
+      if (!siteHeader) return;
+      const scrolled = window.scrollY > 8;
+      siteHeader.classList.toggle('is-scrolled', scrolled);
+    }
+
+    updateHeaderScrolled();
+    window.addEventListener('scroll', updateHeaderScrolled, { passive: true });
+
+    function setHeaderActionsVisible(visible) {
+      if (!siteHeader) return;
+      siteHeader.classList.toggle('is-actions-visible', Boolean(visible));
+    }
+
+    // Show header login/signup only after scrolling past the main hero actions.
+    (function setupHeaderActionsVisibility() {
+      const mainActions = document.querySelector('.hero .hero-actions');
+      if (!siteHeader || !mainActions) {
+        setHeaderActionsVisible(true);
+        return;
+      }
+
+      // Hidden initially while main actions are visible.
+      setHeaderActionsVisible(false);
+
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            const entry = entries[0];
+            // If mainActions is in view, keep header actions hidden.
+            setHeaderActionsVisible(!entry.isIntersecting);
+          },
+          { root: null, threshold: 0.15 }
+        );
+        io.observe(mainActions);
+      } else {
+        // Fallback: toggle based on element's position.
+        const onScroll = () => {
+          const r = mainActions.getBoundingClientRect();
+          const inView = r.bottom > 0 && r.top < window.innerHeight;
+          setHeaderActionsVisible(!inView);
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+      }
+    })();
+
+    function setBodyScrollLocked(locked) {
+      document.body.style.overflow = locked ? 'hidden' : '';
+    }
+
+    function showEl(el, show) {
+      el.style.display = show ? 'block' : 'none';
+    }
+
+    function setText(el, text) {
+      el.textContent = text || '';
+    }
+
+    function clearErrors() {
+      setText(formErrorEl, '');
+      setText(emailErrorEl, '');
+      setText(passwordErrorEl, '');
+      showEl(formErrorEl, false);
+      showEl(emailErrorEl, false);
+      showEl(passwordErrorEl, false);
+      emailEl.removeAttribute('aria-invalid');
+      passwordEl.removeAttribute('aria-invalid');
+    }
+
+    function openLogin() {
+      lastActiveElement = document.activeElement;
+      modal.style.display = 'flex';
+      modal.classList.add('is-open');
+      setBodyScrollLocked(true);
+      clearErrors();
+      window.setTimeout(() => emailEl.focus(), 0);
+    }
+
+    function closeLogin() {
+      modal.classList.remove('is-open');
+      modal.style.display = 'none';
+      setBodyScrollLocked(false);
+      clearErrors();
+      if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
+        lastActiveElement.focus();
+      }
+    }
+
+    modal.addEventListener('mousedown', (e) => {
+      if (e.target === modal) closeLogin();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.style.display === 'flex') {
+        closeLogin();
+      }
+    });
+
+    forgotPasswordLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('Password reset is not wired up yet.');
+    });
+
+    function validateEmail(value) {
+      const v = String(value || '').trim();
+      if (!v) return 'Email is required.';
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      if (!ok) return 'Enter a valid email address.';
+      return '';
+    }
+
+    function validatePassword(value) {
+      const v = String(value || '');
+      if (!v) return 'Password is required.';
+      if (v.length < 6) return 'Password must be at least 6 characters.';
+      return '';
+    }
+
+    function setSubmitting(isSubmitting) {
+      submitBtn.disabled = isSubmitting;
+      submitBtn.textContent = isSubmitting ? 'Logging in…' : 'Login';
+      emailEl.disabled = isSubmitting;
+      passwordEl.disabled = isSubmitting;
+      rememberMeEl.disabled = isSubmitting;
+    }
+
+    emailEl.addEventListener('input', () => {
+      const msg = validateEmail(emailEl.value);
+      setText(emailErrorEl, msg);
+      showEl(emailErrorEl, Boolean(msg));
+      if (msg) emailEl.setAttribute('aria-invalid', 'true'); else emailEl.removeAttribute('aria-invalid');
+    });
+
+    passwordEl.addEventListener('input', () => {
+      const msg = validatePassword(passwordEl.value);
+      setText(passwordErrorEl, msg);
+      showEl(passwordErrorEl, Boolean(msg));
+      if (msg) passwordEl.setAttribute('aria-invalid', 'true'); else passwordEl.removeAttribute('aria-invalid');
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErrors();
+
+      const emailMsg = validateEmail(emailEl.value);
+      const passMsg = validatePassword(passwordEl.value);
+
+      if (emailMsg) {
+        setText(emailErrorEl, emailMsg);
+        showEl(emailErrorEl, true);
+        emailEl.setAttribute('aria-invalid', 'true');
+      }
+      if (passMsg) {
+        setText(passwordErrorEl, passMsg);
+        showEl(passwordErrorEl, true);
+        passwordEl.setAttribute('aria-invalid', 'true');
+      }
+      if (emailMsg || passMsg) {
+        (emailMsg ? emailEl : passwordEl).focus();
+        return;
+      }
+
+      setSubmitting(true);
+      try {
+        await new Promise((r) => setTimeout(r, 650));
+
+        const email = String(emailEl.value || '').trim().toLowerCase();
+        const password = String(passwordEl.value || '');
+        const ok = email.length > 3 && password.length >= 6;
+
+        if (!ok) {
+          setText(formErrorEl, 'Login failed. Please check your email and password.');
+          showEl(formErrorEl, true);
+          return;
+        }
+
+        try {
+          const session = {
+            email,
+            provider: 'password',
+            rememberMe: Boolean(rememberMeEl.checked),
+            createdAt: Date.now()
+          };
+          window.localStorage.setItem('mira_session', JSON.stringify(session));
+        } catch (_) {}
+
+        closeLogin();
+        window.location.href = 'index.html';
+      } finally {
+        setSubmitting(false);
+      }
+    });
+
+    function handleCredentialResponse(response) {
+      const token = response && response.credential ? String(response.credential) : '';
+      if (!token) {
+        setText(formErrorEl, 'Google Sign-In failed. Please try again.');
+        showEl(formErrorEl, true);
+        return;
+      }
+
+      try {
+        const session = {
+          provider: 'google',
+          token,
+          createdAt: Date.now()
+        };
+        window.localStorage.setItem('mira_session', JSON.stringify(session));
+      } catch (_) {}
+
+      closeLogin();
+      window.location.href = 'index.html';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIRA - AI Doctor Consultant</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ojuju:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(1200px 700px at 20% 10%, #e9fbff 0%, rgba(233, 251, 255, 0) 60%),
+                  radial-gradient(1000px 650px at 80% 30%, #d7f5ff 0%, rgba(215, 245, 255, 0) 55%),
+                  linear-gradient(180deg, #bdeeff 0%, #cfefff 30%, #ffffff 100%);
+      color: #0b1220;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      animation: fadeInDown 520ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      transition: box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    header.is-scrolled {
+      background: rgba(255, 255, 255, 0.68);
+      border-bottom-color: rgba(15, 23, 42, 0.10);
+      box-shadow: 0 18px 50px rgba(2, 8, 23, 0.10);
+    }
+
+    .header-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      font-family: 'Ojuju', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      -webkit-text-stroke: 1px rgba(11, 18, 32, 0.9);
+    }
+
+    .header-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .top-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: rgba(11, 18, 32, 0.7);
+    }
+
+    .top-nav a {
+      text-decoration: none;
+      color: rgba(11, 18, 32, 0.72);
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(10px);
+      transition: transform 120ms ease, background 120ms ease;
+      white-space: nowrap;
+    }
+
+    .top-nav a:hover {
+      background: rgba(255, 255, 255, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .header-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .login-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(11, 18, 32, 0.96) 0%, rgba(11, 18, 32, 0.86) 100%);
+      color: #fff;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 14px 30px rgba(2, 8, 23, 0.12);
+      transition: transform 120ms ease, filter 120ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .login-btn:hover {
+      filter: brightness(1.02);
+      transform: translateY(-1px);
+    }
+
+    .signup-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      color: rgba(11, 18, 32, 0.92);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      box-shadow: 0 14px 30px rgba(2, 8, 23, 0.08);
+      transition: transform 120ms ease, background 120ms ease, filter 120ms ease;
+      white-space: nowrap;
+    }
+
+    .signup-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      filter: brightness(1.01);
+      transform: translateY(-1px);
+    }
+
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 24px 80px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 22px;
+      align-items: center;
+      margin-top: 26px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: 0 24px 60px rgba(2, 8, 23, 0.10);
+      border-radius: 18px;
+      padding: 28px 28px;
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 620ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+    }
+
+    .tagline {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 14px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+      line-height: 1.08;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: rgba(11, 18, 32, 0.75);
+      margin-bottom: 18px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .primary-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #0077aa 0%, #0a4aa6 100%);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
+      transition: transform 120ms ease, filter 120ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .primary-cta::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.22) 45%, rgba(255,255,255,0) 70%);
+      transform: translateX(-120%);
+      transition: transform 700ms ease;
+    }
+
+    .primary-cta:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    .primary-cta:hover::after { transform: translateX(120%); }
+
+    .secondary-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      color: rgba(11, 18, 32, 0.92);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      box-shadow: 0 18px 40px rgba(2, 8, 23, 0.08);
+      transition: transform 120ms ease, background 120ms ease, filter 120ms ease;
+      white-space: nowrap;
+    }
+
+    .secondary-cta:hover {
+      background: rgba(255, 255, 255, 0.9);
+      filter: brightness(1.01);
+      transform: translateY(-1px);
+    }
+
+    .fineprint {
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(11, 18, 32, 0.62);
+      max-width: 70ch;
+    }
+
+    .visual {
+      position: relative;
+      overflow: hidden;
+      min-height: 360px;
+      animation-delay: 110ms;
+    }
+
+    .visual::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: conic-gradient(from 180deg at 50% 50%,
+        rgba(85, 214, 255, 0.0) 0deg,
+        rgba(85, 214, 255, 0.65) 70deg,
+        rgba(106, 164, 255, 0.55) 140deg,
+        rgba(166, 255, 234, 0.55) 220deg,
+        rgba(85, 214, 255, 0.0) 360deg
+      );
+      opacity: 0.26;
+      filter: blur(10px);
+      animation: haloSpin 12s linear infinite;
+    }
+
+    .visual::after {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: 17px;
+      background: radial-gradient(700px 350px at 20% 15%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.55) 40%, rgba(255,255,255,0.35) 100%);
+      pointer-events: none;
+    }
+
+    .visual-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      height: 100%;
+    }
+
+    .visual img {
+      width: min(420px, 95%);
+      height: auto;
+      filter: drop-shadow(0 28px 70px rgba(2, 8, 23, 0.18));
+    }
+
+    .section { margin-top: 22px; }
+
+    .section h2 {
+      font-size: 18px;
+      letter-spacing: -0.01em;
+      margin: 0 0 12px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .mini {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      border-radius: 16px;
+      padding: 16px 16px;
+      box-shadow: 0 18px 40px rgba(2, 8, 23, 0.08);
+    }
+
+    .mini b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: rgba(11, 18, 32, 0.88);
+    }
+
+    .mini span {
+      font-size: 13px;
+      color: rgba(11, 18, 32, 0.72);
+      line-height: 1.6;
+    }
+
+    details {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      border-radius: 14px;
+      padding: 14px 14px;
+      box-shadow: 0 18px 40px rgba(2, 8, 23, 0.06);
+    }
+
+    details + details { margin-top: 10px; }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: rgba(11, 18, 32, 0.86);
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .faq-a {
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(11, 18, 32, 0.72);
+      line-height: 1.7;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding: 18px 0 0 0;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      color: rgba(11, 18, 32, 0.62);
+      font-size: 12px;
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .footer a {
+      color: rgba(11, 18, 32, 0.66);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer a:hover { text-decoration: underline; }
+
+    .bg-vectors {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-vectors::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.35;
+      background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.10) 1px, rgba(0,0,0,0) 1.2px);
+      background-size: 22px 22px;
+      mask-image: radial-gradient(800px 520px at 50% 20%, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%);
+      animation: gridPulse 7s ease-in-out infinite;
+    }
+
+    .bg-vectors svg {
+      position: absolute;
+      opacity: 0.9;
+      filter: drop-shadow(0 18px 40px rgba(2, 8, 23, 0.10));
+      transform-origin: 50% 50%;
+    }
+
+    .vec-1 { left: -140px; top: -120px; width: 420px; height: 420px; opacity: 0.55; animation: float1 9.5s ease-in-out infinite; }
+    .vec-2 { right: -180px; top: 120px; width: 520px; height: 520px; opacity: 0.45; animation: float2 12s ease-in-out infinite; }
+    .vec-3 { left: 14%; bottom: -220px; width: 620px; height: 620px; opacity: 0.35; animation: float3 14s ease-in-out infinite; }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes float1 { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 50% { transform: translate3d(14px, 10px, 0) rotate(6deg); } }
+    @keyframes float2 { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 50% { transform: translate3d(-16px, 12px, 0) rotate(-5deg); } }
+    @keyframes float3 { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 50% { transform: translate3d(10px, -14px, 0) rotate(4deg); } }
+    @keyframes gridPulse { 0%, 100% { opacity: 0.24; transform: translate3d(0, 0, 0); } 50% { opacity: 0.42; transform: translate3d(0, -6px, 0); } }
+    @keyframes haloSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      header, .card { animation: none !important; }
+      .bg-vectors svg { animation: none !important; }
+      .bg-vectors::before { animation: none !important; }
+      .visual::before { animation: none !important; }
+      .primary-cta::after { transition: none !important; }
+    }
+
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+      .card { padding: 22px; }
+    }
+
+    @media (max-width: 520px) {
+      .header-right { gap: 8px; }
+      .top-nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-vectors" aria-hidden="true">
+    <svg class="vec-1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#55d6ff" stop-opacity="0.95"/>
+          <stop offset="1" stop-color="#1b8cff" stop-opacity="0.65"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g1)" d="M44.2,-67.3C57.5,-60.1,68.6,-48.3,74.5,-34.6C80.4,-20.9,81.2,-5.3,78.2,10.1C75.2,25.4,68.4,40.5,57.1,52.9C45.9,65.3,30.2,75,14.1,77.2C-2,79.4,-18.4,74.2,-32.2,64.7C-46.1,55.2,-57.5,41.3,-65.9,25.8C-74.4,10.2,-79.8,-6.9,-77.1,-23.1C-74.3,-39.3,-63.3,-54.6,-49.2,-61.5C-35.2,-68.4,-18.1,-67,0.1,-67.2C18.3,-67.4,36.6,-69.1,44.2,-67.3Z" transform="translate(100 100)"/>
+    </svg>
+    <svg class="vec-2" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g2" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#a6ffea" stop-opacity="0.85"/>
+          <stop offset="1" stop-color="#6aa4ff" stop-opacity="0.55"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g2)" d="M47.3,-71.4C61.6,-64.6,73.7,-52,79.1,-36.9C84.6,-21.7,83.3,-4,79.4,13.3C75.4,30.6,68.7,47.6,56.8,60.6C44.9,73.5,27.9,82.4,10.6,84.4C-6.6,86.4,-24,81.4,-37.9,71.4C-51.7,61.4,-62.1,46.3,-70.2,30.3C-78.4,14.3,-84.3,-2.6,-82,-19C-79.6,-35.4,-69,-51.3,-54.9,-58.6C-40.8,-65.9,-23.2,-64.7,-6.3,-55.1C10.6,-45.5,21.1,-78.2,47.3,-71.4Z" transform="translate(110 110)"/>
+    </svg>
+    <svg class="vec-3" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g3" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#b8c7ff" stop-opacity="0.6"/>
+          <stop offset="1" stop-color="#62f3ff" stop-opacity="0.45"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g3)" d="M54.5,-78.6C69.1,-73.3,78.7,-57.4,83.2,-40.8C87.6,-24.2,86.9,-7,82.7,9.3C78.5,25.6,70.8,40.9,59.2,54.7C47.6,68.5,32.2,80.8,14.8,84.9C-2.6,89,-22.1,84.9,-37.6,75.3C-53.1,65.8,-64.5,50.8,-73.1,34.5C-81.7,18.2,-87.6,0.6,-84.9,-15.8C-82.3,-32.2,-71.2,-47.4,-57.2,-53.6C-43.2,-59.8,-26.2,-57,-9.2,-62C7.8,-67,15.6,-79.8,54.5,-78.6Z" transform="translate(120 120)"/>
+    </svg>
+  </div>
+
+  <header id="siteHeader">
+    <div class="header-inner">
+      <div class="logo">MIRA</div>
+      <div class="header-right">
+        <nav class="top-nav" aria-label="Top navigation">
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#faq">FAQ</a>
+          <a href="contact_us.html">Contact</a>
+        </nav>
+        <div class="header-actions" id="headerActions" aria-label="Account actions">
+          <a href="login.html" class="login-btn" id="loginLink">Login</a>
+          <a href="signup.html" class="signup-btn" id="signupLink">Sign up</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="Homepage hero">
+      <div class="card">
+        <span class="tagline">AI-powered guidance, human-centered tone</span>
+        <h1>Clarity for your symptoms—fast.</h1>
+        <p>MIRA helps you describe what you’re feeling and turns it into calm, structured next steps. Use it to prepare for a visit, understand common symptoms, or decide what to do next.</p>
+        <div class="cta-row">
+          <a href="login.html" class="primary-cta" id="primaryCta">Start consultation</a>
+          <a href="#features" class="secondary-cta">See what MIRA does</a>
+        </div>
+        <div class="fineprint">
+          MIRA is not a substitute for professional medical advice. If you think you may have an emergency, call your local emergency number.
+        </div>
+      </div>
+      <div class="card visual" aria-label="MIRA illustration">
+        <div class="visual-inner">
+          <img src="../assets/mira_faq.png" alt="MIRA assistant illustration" />
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section" aria-label="Features">
+      <h2>What users like</h2>
+      <div class="grid">
+        <div class="mini">
+          <b>Guided questions</b>
+          <span>Helps you explain symptoms clearly, even when you’re unsure where to start.</span>
+        </div>
+        <div class="mini">
+          <b>Actionable next steps</b>
+          <span>Summarizes what to monitor, what to try, and when to seek care.</span>
+        </div>
+        <div class="mini">
+          <b>Calm, readable output</b>
+          <span>Structured suggestions—no walls of text.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="section" aria-label="How it works">
+      <h2>How it works</h2>
+      <div class="grid">
+        <div class="mini">
+          <b>1) Describe</b>
+          <span>Share your symptoms and context (duration, severity, triggers).</span>
+        </div>
+        <div class="mini">
+          <b>2) Clarify</b>
+          <span>MIRA asks focused follow-ups to reduce ambiguity.</span>
+        </div>
+        <div class="mini">
+          <b>3) Decide</b>
+          <span>Get clear next steps and red flags to watch for.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section" aria-label="FAQ">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Is MIRA a doctor?</summary>
+        <div class="faq-a">No. MIRA provides informational guidance and helps you organize your symptoms. It does not replace a clinician.</div>
+      </details>
+      <details>
+        <summary>When should I seek urgent help?</summary>
+        <div class="faq-a">If you have severe symptoms or think it’s an emergency, call your local emergency number immediately.</div>
+      </details>
+      <details>
+        <summary>Do I need an account?</summary>
+        <div class="faq-a">You can explore the site without one, but you’ll need to log in to start a consultation.</div>
+      </details>
+    </section>
+
+    <div class="footer" aria-label="Footer">
+      <div>© <span id="year"></span> MIRA</div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="about_page.html">About</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact_us.html">Contact</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const siteHeader = document.getElementById('siteHeader');
+    const headerActions = document.getElementById('headerActions');
+    const primaryCta = document.getElementById('primaryCta');
+    const yearEl = document.getElementById('year');
+
+    function updateHeaderScrolled() {
+      if (!siteHeader) return;
+      siteHeader.classList.toggle('is-scrolled', window.scrollY > 8);
+    }
+    updateHeaderScrolled();
+    window.addEventListener('scroll', updateHeaderScrolled, { passive: true });
+
+    if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
+    function isLoggedIn() {
+      try { return Boolean(window.localStorage.getItem('mira_session')); } catch (_) { return false; }
+    }
+
+    function renderAuth() {
+      const loggedIn = isLoggedIn();
+      if (!headerActions) return;
+
+      if (loggedIn) {
+        headerActions.innerHTML = `
+          <a href="trail.ipynb" class="login-btn">Open assistant</a>
+          <button type="button" class="signup-btn" id="logoutBtn">Logout</button>
+        `;
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', () => {
+            try { window.localStorage.removeItem('mira_session'); } catch (_) {}
+            renderAuth();
+          });
+        }
+        if (primaryCta) primaryCta.href = 'trail.ipynb';
+      } else {
+        if (primaryCta) primaryCta.href = 'login.html';
+      }
+    }
+
+    renderAuth();
+  </script>
+
+</body>
+</html>
