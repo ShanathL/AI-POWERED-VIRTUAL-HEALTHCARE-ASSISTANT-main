@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - MIRA</title>
+  <link rel="stylesheet" href="styles.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Ojuju:wght@600&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -817,12 +818,15 @@
 
   <header id="siteHeader">
     <div class="header-inner">
-      <div class="logo">MIRA</div>
+      <a href="index.html" class="logo">MIRA</a>
       <div class="header-right">
         <nav class="top-nav" aria-label="Top navigation">
-          <a href="#about">About us</a>
+          <a href="index.html">Home</a>
+          <a href="about_page.html">About</a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact_us.html">Contact</a>
         </nav>
-        <div class="header-actions" aria-label="Account actions">
+        <div class="header-actions" id="headerActions" data-auth="false" aria-label="Account actions">
           <button class="login-btn" type="button" onclick="openLogin()">Login</button>
           <a class="signup-btn" href="signup.html">Sign up</a>
         </div>
@@ -980,6 +984,15 @@
     </div>
   </section>
 
+  <div class="footer" aria-label="Footer" style="max-width: 1040px; margin: 0 auto; padding: 0 24px 40px;">
+    <div>© <span id="year"></span> MIRA</div>
+    <div class="footer-links">
+      <a href="about_page.html">About</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact_us.html">Contact</a>
+    </div>
+  </div>
+
   <!-- Login Modal -->
   <div id="loginModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
     <div class="modal-content" role="document">
@@ -1048,8 +1061,7 @@
 
     function updateHeaderScrolled() {
       if (!siteHeader) return;
-      const scrolled = window.scrollY > 8;
-      siteHeader.classList.toggle('is-scrolled', scrolled);
+      siteHeader.classList.toggle('is-scrolled', window.scrollY > 8);
     }
 
     updateHeaderScrolled();
@@ -1262,6 +1274,7 @@
       window.location.href = 'index.html';
     }
   </script>
+  <script src="site.js" defer></script>
 
 </body>
 </html>

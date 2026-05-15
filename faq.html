@@ -4,261 +4,112 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FAQ - MIRA</title>
-  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="styles.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Ojuju:wght@600&display=swap" rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #bdeeff;
-      color: #000;
-      line-height: 1.6;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 80px;
-    }
-
-    .logo {
-      font-family: 'Ojuju', sans-serif;
-      font-size: 24px;
-      font-weight: 600;
-      -webkit-text-stroke: 1px black;
-    }
-
-    .nav-auth-group {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-    }
-
-    nav {
-      display: flex;
-      gap: 30px;
-    }
-
-    nav a {
-      text-decoration: none;
-      color: #000;
-      font-weight: 500;
-      transition: color 0.3s, text-decoration 0.3s;
-    }
-
-    nav a.light {
-      font-weight: 300;
-      color: #444;
-    }
-
-    nav a:not(.light):hover {
-      color: #000;
-      text-decoration: underline;
-    }
-
-    nav a.light:hover {
-      color: #0077aa;
-      text-decoration: underline dashed;
-    }
-
-    .auth-buttons {
-      display: flex;
-      gap: 30px;
-    }
-
-    .auth-buttons a {
-      padding: 6px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      text-decoration: none;
-    }
-
-    .login {
-      border: 1px solid #000;
-      background: transparent;
-      color: #000;
-    }
-
-    .signup {
-      background-color: #000;
-      color: #fff;
-      border: none;
-    }
-
-    .faq-container {
-      display: flex;
-      justify-content: space-between;
-      padding: 60px 80px;
-      gap: 60px;
-    }
-
-    .faq-section {
-      flex: 2;
-    }
-
-    .faq-section h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
-      font-weight: 800;
-    }
-
-    .faq-item {
-      background: #fff;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      padding: 16px 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .faq-item:hover {
-      background: #eef9ff;
-    }
-
-    .faq-question {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    .faq-answer {
-      margin-top: 10px;
-      font-size: 15px;
-      display: none;
-    }
-
-    .faq-item.active .faq-answer {
-      display: block;
-    }
-
-    .ask-section {
-      flex: 1;
-      text-align: center;
-      background: #fff;
-      padding: 30px 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .ask-section img {
-      max-width: 120px;
-      margin-bottom: 20px;
-    }
-
-    .ask-section h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-
-    .ask-section p {
-      font-size: 14px;
-      margin-bottom: 20px;
-      color: #666;
-    }
-
-    .ask-section input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-
-    .ask-section button {
-      background: #00bfff;
-      color: #fff;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .ask-section button:hover {
-      background: #009fdc;
-    }
-  </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">MIRA</div>
-    <div class="nav-auth-group">
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="about_page.html" class="light">About</a>
-        <a href="faq_page.html" class="light">FAQ</a>
-        <a href="contact_us.html" class="light">Contact Us</a>
-      </nav>
-      <div class="auth-buttons">
-        <a href="#" class="login" onclick="openLogin()">Login</a>
-        <a href="signup.html" class="signup">Sign up</a>
+  <div class="bg-vectors" aria-hidden="true">
+    <svg class="vec-1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#55d6ff" stop-opacity="0.95"/>
+          <stop offset="1" stop-color="#1b8cff" stop-opacity="0.65"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g1)" d="M44.2,-67.3C57.5,-60.1,68.6,-48.3,74.5,-34.6C80.4,-20.9,81.2,-5.3,78.2,10.1C75.2,25.4,68.4,40.5,57.1,52.9C45.9,65.3,30.2,75,14.1,77.2C-2,79.4,-18.4,74.2,-32.2,64.7C-46.1,55.2,-57.5,41.3,-65.9,25.8C-74.4,10.2,-79.8,-6.9,-77.1,-23.1C-74.3,-39.3,-63.3,-54.6,-49.2,-61.5C-35.2,-68.4,-18.1,-67,0.1,-67.2C18.3,-67.4,36.6,-69.1,44.2,-67.3Z" transform="translate(100 100)"/>
+    </svg>
+    <svg class="vec-2" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g2" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#a6ffea" stop-opacity="0.85"/>
+          <stop offset="1" stop-color="#6aa4ff" stop-opacity="0.55"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g2)" d="M47.3,-71.4C61.6,-64.6,73.7,-52,79.1,-36.9C84.6,-21.7,83.3,-4,79.4,13.3C75.4,30.6,68.7,47.6,56.8,60.6C44.9,73.5,27.9,82.4,10.6,84.4C-6.6,86.4,-24,81.4,-37.9,71.4C-51.7,61.4,-62.1,46.3,-70.2,30.3C-78.4,14.3,-84.3,-2.6,-82,-19C-79.6,-35.4,-69,-51.3,-54.9,-58.6C-40.8,-65.9,-23.2,-64.7,-6.3,-55.1C10.6,-45.5,21.1,-78.2,47.3,-71.4Z" transform="translate(110 110)"/>
+    </svg>
+    <svg class="vec-3" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g3" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#b8c7ff" stop-opacity="0.6"/>
+          <stop offset="1" stop-color="#62f3ff" stop-opacity="0.45"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g3)" d="M54.5,-78.6C69.1,-73.3,78.7,-57.4,83.2,-40.8C87.6,-24.2,86.9,-7,82.7,9.3C78.5,25.6,70.8,40.9,59.2,54.7C47.6,68.5,32.2,80.8,14.8,84.9C-2.6,89,-22.1,84.9,-37.6,75.3C-53.1,65.8,-64.5,50.8,-73.1,34.5C-81.7,18.2,-87.6,0.6,-84.9,-15.8C-82.3,-32.2,-71.2,-47.4,-57.2,-53.6C-43.2,-59.8,-26.2,-57,-9.2,-62C7.8,-67,15.6,-79.8,54.5,-78.6Z" transform="translate(120 120)"/>
+    </svg>
+  </div>
+
+  <header id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="logo">MIRA</a>
+      <div class="header-right">
+        <nav class="top-nav" aria-label="Top navigation">
+          <a href="index.html">Home</a>
+          <a href="about_page.html">About</a>
+          <a href="faq.html" class="is-active">FAQ</a>
+          <a href="contact_us.html">Contact</a>
+        </nav>
+        <div class="header-actions" id="headerActions" aria-label="Account actions">
+          <a href="login.html" class="login-btn">Login</a>
+          <a href="signup.html" class="signup-btn">Sign up</a>
+        </div>
       </div>
     </div>
   </header>
 
-  <div class="faq-container">
-    <div class="faq-section">
-      <h1>Frequently Asked Questions</h1>
+  <main>
+    <section class="section" aria-label="FAQ page" style="margin-top: 10px;">
+      <h1 class="page-title">Frequently asked questions</h1>
+      <p class="page-lead">Quick answers about MIRA—what it is, how it works, and when to seek professional care.</p>
+    </section>
 
-      <div class="faq-item">
-        <div class="faq-question">
-          What is MIRA?
-          <span>+</span>
-        </div>
-        <div class="faq-answer">
-          MIRA is an AI-powered doctor consultant that guides users through video-based medical interactions.
-        </div>
+    <section class="grid-2" aria-label="FAQ content">
+      <div>
+        <details open>
+          <summary>What is MIRA?</summary>
+          <div class="faq-a">MIRA is an AI-powered healthcare assistant that guides you through symptom questions and turns your answers into clear, structured next steps.</div>
+        </details>
+        <details>
+          <summary>How does MIRA determine which guidance to show?</summary>
+          <div class="faq-a">MIRA uses natural language understanding and medical knowledge bases to classify your input and suggest relevant information, follow-up questions, and care recommendations.</div>
+        </details>
+        <details>
+          <summary>Is MIRA a real doctor?</summary>
+          <div class="faq-a">No. MIRA is a virtual assistant meant to inform and guide. It does not replace professional medical advice, diagnosis, or treatment.</div>
+        </details>
+        <details>
+          <summary>When should I seek urgent help?</summary>
+          <div class="faq-a">If you have severe symptoms or think it's an emergency, call your local emergency number immediately. Do not rely on MIRA for emergency decisions.</div>
+        </details>
+        <details>
+          <summary>Do I need an account?</summary>
+          <div class="faq-a">You can browse the site without one, but you'll need to sign up or log in to start a consultation.</div>
+        </details>
+        <details>
+          <summary>Is my information private?</summary>
+          <div class="faq-a">MIRA is designed with privacy in mind. Avoid sharing sensitive identifiers you don't need to share for your consultation.</div>
+        </details>
       </div>
 
-      <div class="faq-item">
-        <div class="faq-question">
-          How does MIRA determine which video to show?
-          <span>+</span>
-        </div>
-        <div class="faq-answer">
-          MIRA uses rule-based logic or NLP models to classify user input and map it to the correct pre-recorded video.
-        </div>
+      <div class="card ask-card">
+        <img src="../assets/ask_any_question.jpg" alt="Ask a question illustration" />
+        <h2>Still have a question?</h2>
+        <p>Reach out to our team—we're happy to help.</p>
+        <a href="contact_us.html" class="primary-cta" style="display: inline-flex;">Contact us</a>
       </div>
+    </section>
 
-      <div class="faq-item">
-        <div class="faq-question">
-          Is MIRA a real doctor?
-          <span>+</span>
-        </div>
-        <div class="faq-answer">
-          No. MIRA is a virtual assistant meant to guide and assist. It does not replace real medical advice.
-        </div>
+    <div class="footer" aria-label="Footer">
+      <div>© <span id="year"></span> MIRA</div>
+      <div class="footer-links">
+        <a href="about_page.html">About</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact_us.html">Contact</a>
       </div>
     </div>
+  </main>
 
-    <div class="ask-section">
-      <img src="../assets/ask_any_question.jpg" alt="Ask question illustration" />
-      <h2>Any Question?</h2>
-      <p>You can ask anything you want to know about MIRA.</p>
-      <input type="text" placeholder="Enter your question" />
-      <button>Send</button>
-    </div>
-  </div>
-
-  <script>
-    document.querySelectorAll('.faq-item').forEach(item => {
-      item.addEventListener('click', () => {
-        item.classList.toggle('active');
-      });
-    });
-  </script>
-
+  <script src="site.js" defer></script>
 </body>
 </html>

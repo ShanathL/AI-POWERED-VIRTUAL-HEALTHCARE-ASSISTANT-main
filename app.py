@@ -1,108 +1,186 @@
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS  # ✅ Import CORS to fix cross-origin issues
-import speech_recognition as sr
-import pandas as pd
-import re
+"""
+MIRA Flask app — API + animated virtual assistant UI.
+Run: python app.py  →  http://127.0.0.1:5000/assistant
+"""
 
-app = Flask(__name__)
-CORS(app)  # ✅ Enable CORS for all routes
+from __future__ import annotations
 
-# ✅ Load dataset
-csv_path = "D:\\trail\\csv_output\\med.csv"
-try:
-    df = pd.read_csv(csv_path, delimiter="\t")
-except Exception:
-    df = pd.read_csv(csv_path, delimiter=",")
-    if df.shape[1] == 1:
-        df = pd.read_csv(csv_path, delimiter="|")
+import os
+from pathlib import Path
 
-# ✅ Clean column names
-df.columns = df.columns.str.strip().str.lower()
-required_columns = ["condition", "symptoms", "duration", "severity", "risk_factors", "suggested_action"]
-missing_columns = set(required_columns) - set(df.columns)
-if missing_columns:
-    raise ValueError(f"❌ Missing required columns: {missing_columns}. Available columns: {df.columns}")
+from flask import Flask, jsonify, render_template, request, send_from_directory, session
+from flask_cors import CORS
 
-df["symptoms"] = df["symptoms"].astype(str).str.lower()
+from mira_engine import MiraEngine
 
-def extract_duration(text):
-    """Extracts numeric duration from input text."""
-    match = re.search(r"\d+", text)
-    return int(match.group()) if match else None
+ROOT = Path(__file__).resolve().parent
 
-def is_duration_valid(user_duration, duration_range):
-    """Checks if user duration falls within the given range."""
-    try:
-        user_duration = int(user_duration)
-        match = re.match(r"(\d+)-(\d+)", duration_range)
-        if match:
-            lower, upper = map(int, match.groups())
-            return lower <= user_duration <= upper
-        return user_duration == int(duration_range)
-    except ValueError:
-        return False
+app = Flask(
+    __name__,
+    template_folder=str(ROOT / "templates"),
+    static_folder=str(ROOT / "static"),
+)
+app.secret_key = os.environ.get("MIRA_SECRET_KEY", "mira-dev-change-in-production")
+CORS(app, supports_credentials=True)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+_engine = MiraEngine(csv_path=ROOT / "med.csv")
 
-@app.route('/start', methods=['GET'])
+
+def _get_session():
+    if "mira" not in session:
+        s = _engine.new_session()
+        _save_session(s)
+    data = session["mira"]
+    s = _engine.new_session()
+    s.step = data.get("step", "welcome")
+    s.candidate_ids = list(data.get("candidate_ids", []))
+    s.last_symptom = data.get("last_symptom", "")
+    s.user_days = data.get("user_days")
+    s.trend = data.get("trend", "")
+    s.severity = data.get("severity", "")
+    s.impact = data.get("impact", "")
+    return s
+
+
+def _save_session(s):
+    session["mira"] = {
+        "step": s.step,
+        "candidate_ids": s.candidate_ids,
+        "last_symptom": s.last_symptom,
+        "user_days": s.user_days,
+        "trend": s.trend,
+        "severity": s.severity,
+        "impact": s.impact,
+    }
+
+
+def _response_payload(result, step: str):
+    msgs = result.all_messages()
+    return {
+        "response": msgs[-1] if msgs else result.message,
+        "messages": msgs,
+        "suggestions": result.suggestions,
+        "input_hint": result.input_hint,
+        "done": result.done,
+        "step": step,
+        "condition": result.condition,
+        "suggested_action": result.suggested_action,
+        "matches": result.matches,
+        "emergency": result.emergency,
+    }
+
+
+# ——— Static site assets (HTML pages in project root) ———
+
+@app.route("/styles.css")
+def site_styles():
+    return send_from_directory(ROOT, "styles.css")
+
+
+@app.route("/site.js")
+def site_js():
+    return send_from_directory(ROOT, "site.js")
+
+
+@app.route("/<page>.html")
+def site_page(page: str):
+    allowed = {"index", "login", "signup", "faq", "about_page", "contact_us"}
+    if page not in allowed:
+        return jsonify({"error": "Not found"}), 404
+    return send_from_directory(ROOT, f"{page}.html")
+
+
+# ——— Virtual assistant UI ———
+
+@app.route("/")
+def home():
+    return send_from_directory(ROOT, "index.html")
+
+
+@app.route("/assistant")
+def assistant():
+    """Animated VA consultation interface."""
+    return render_template("assistant.html")
+
+
+# ——— API ———
+
+@app.route("/api/health")
+def health():
+    return jsonify(
+        {
+            "status": "ok",
+            "conditions_loaded": len(_engine.df),
+            "service": "MIRA consultation API",
+        }
+    )
+
+
+@app.route("/start", methods=["GET", "POST"])
+@app.route("/api/start", methods=["GET", "POST"])
 def start_chat():
-    return jsonify({"response": "Hello, I'm Dr. Mira. How can I assist you today?"})
+    session.pop("mira", None)
+    s = _engine.new_session()
+    session["mira"] = {
+        "step": s.step,
+        "candidate_ids": s.candidate_ids,
+        "last_symptom": s.last_symptom,
+        "user_days": s.user_days,
+        "trend": s.trend,
+        "severity": s.severity,
+        "impact": s.impact,
+    }
+    welcome = _engine.get_welcome()
+    return jsonify(_response_payload(welcome, "welcome"))
 
-@app.route('/consult', methods=['POST'])
-def process_symptom():
-    symptom = request.json.get('symptom', '').strip().lower()
-    if not symptom:
-        return jsonify({"response": "Please provide a symptom."})
-    
-    matched_conditions = df[df["symptoms"].str.contains(symptom, na=False, regex=True)]
-    if matched_conditions.empty:
-        return jsonify({"response": "I couldn't find any condition related to that symptom."})
-    
-    return jsonify({"response": f"I found {len(matched_conditions)} conditions related to {symptom}. For how many days have you had this symptom?"})
 
-@app.route('/duration', methods=['POST'])
-def process_duration():
-    duration_text = request.json.get('duration', '').strip()
-    duration_number = extract_duration(duration_text)
-    
-    if not duration_number:
-        return jsonify({"response": "I didn't hear a valid duration. Please try again."})
-    
-    matched_conditions = df[df["duration"].apply(lambda x: is_duration_valid(duration_number, str(x)))]
-    
-    if matched_conditions.empty:
-        return jsonify({"response": "No conditions match that duration range. Please consult a doctor."})
-    
-    return jsonify({"response": f"{len(matched_conditions)} conditions match your symptom and duration. Is it mild, moderate, or severe?"})
+@app.route("/consult", methods=["POST"])
+@app.route("/api/consult", methods=["POST"])
+def consult():
+    payload = request.get_json(silent=True) or {}
+    message = (payload.get("message") or payload.get("symptom") or "").strip()
+    if not message:
+        return jsonify(
+            {
+                "response": "Please provide a message.",
+                "done": False,
+                "step": _get_session().step,
+            }
+        ), 400
 
-@app.route('/severity', methods=['POST'])
-def process_severity():
-    severity = request.json.get('severity', '').strip().lower()
-    if not severity:
-        return jsonify({"response": "Please specify mild, moderate, or severe."})
-    
-    matched_conditions = df[df["severity"].str.contains(severity, na=False, regex=True)]
-    
-    if matched_conditions.empty:
-        return jsonify({"response": "No conditions match that severity level. Please consult a doctor."})
-    
-    return jsonify({"response": f"{len(matched_conditions)} conditions match your symptom, duration, and severity. Do you have any risk factors?"})
+    s = _get_session()
+    result = _engine.process(s, message)
+    step = s.step if not result.done else "done"
 
-@app.route('/risk', methods=['POST'])
-def process_risk():
-    user_risk_factor = request.json.get('risk_factor', '').strip().lower()
-    
-    matched_conditions = df[df["risk_factors"].str.contains(user_risk_factor, na=False, regex=True)]
-    
-    if matched_conditions.empty:
-        return jsonify({"response": "I couldn't find a perfect match. However, please consult a doctor."})
-    
-    condition_name = matched_conditions.iloc[0]["condition"]
-    suggested_action = matched_conditions.iloc[0]["suggested_action"]
-    
-    return jsonify({"response": f"It looks like you might have {condition_name}. {suggested_action}"})
+    if result.done:
+        session.pop("mira", None)
+    else:
+        _save_session(s)
+
+    return jsonify(_response_payload(result, step))
+
+
+@app.route("/duration", methods=["POST"])
+@app.route("/severity", methods=["POST"])
+@app.route("/risk", methods=["POST"])
+def legacy_step():
+    payload = request.get_json(silent=True) or {}
+    text = (
+        payload.get("duration")
+        or payload.get("severity")
+        or payload.get("risk_factor")
+        or payload.get("message")
+        or ""
+    )
+    s = _get_session()
+    result = _engine.process(s, str(text))
+    step = s.step if not result.done else "done"
+    if result.done:
+        session.pop("mira", None)
+    else:
+        _save_session(s)
+    return jsonify(_response_payload(result, step))
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5000)

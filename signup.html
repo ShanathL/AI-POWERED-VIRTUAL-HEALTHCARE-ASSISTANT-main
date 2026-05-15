@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sign Up - MIRA</title>
+  <link rel="stylesheet" href="styles.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Ojuju:wght@600&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -556,12 +557,15 @@
 
   <header id="siteHeader">
     <div class="header-inner">
-      <div class="logo">MIRA</div>
+      <a href="index.html" class="logo">MIRA</a>
       <div class="header-right">
         <nav class="top-nav" aria-label="Top navigation">
-          <a href="#start">Get started</a>
+          <a href="index.html">Home</a>
+          <a href="about_page.html">About</a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact_us.html">Contact</a>
         </nav>
-        <div class="header-actions" aria-label="Account actions">
+        <div class="header-actions" id="headerActions" data-auth="false" aria-label="Account actions">
           <a class="login-btn" href="login.html">Log in</a>
           <a class="signup-btn" href="#start">Sign up</a>
         </div>
@@ -677,6 +681,15 @@
         </div>
       </div>
     </section>
+
+    <div class="footer" aria-label="Footer">
+      <div>© <span id="year"></span> MIRA</div>
+      <div class="footer-links">
+        <a href="about_page.html">About</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact_us.html">Contact</a>
+      </div>
+    </div>
   </main>
 
   <script>
@@ -691,12 +704,6 @@
     const emailErrorEl = document.getElementById('emailError');
     const passwordErrorEl = document.getElementById('passwordError');
 
-    function updateHeaderScrolled() {
-      if (!siteHeader) return;
-      siteHeader.classList.toggle('is-scrolled', window.scrollY > 8);
-    }
-    updateHeaderScrolled();
-    window.addEventListener('scroll', updateHeaderScrolled, { passive: true });
 
     function showEl(el, show) {
       el.style.display = show ? 'block' : 'none';
@@ -832,6 +839,7 @@
       window.location.href = 'index.html';
     }
   </script>
+  <script src="site.js" defer></script>
 
 </body>
 </html>
