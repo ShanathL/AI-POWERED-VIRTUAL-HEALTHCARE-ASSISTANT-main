@@ -21,16 +21,31 @@ app = Flask(
     static_folder=str(ROOT / "static"),
 )
 app.secret_key = os.environ.get("MIRA_SECRET_KEY", "mira-dev-change-in-production")
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 3600
 CORS(app, supports_credentials=True)
 
 _engine = MiraEngine(csv_path=ROOT / "med.csv")
 
 
-def _get_session():
-    if "mira" not in session:
-        s = _engine.new_session()
-        _save_session(s)
-    data = session["mira"]
+def _session_to_dict(s) -> dict:
+    return {
+        "step": s.step,
+        "candidate_ids": s.candidate_ids,
+        "last_symptom": s.last_symptom,
+        "user_days": s.user_days,
+        "trend": s.trend,
+        "severity": s.severity,
+        "impact": s.impact,
+        "age_group": s.age_group,
+        "fever_level": s.fever_level,
+        "medication": s.medication,
+        "needs_red_flag": s.needs_red_flag,
+        "match_scores": {str(k): v for k, v in s.match_scores.items()},
+        "symptom_queries": s.symptom_queries,
+    }
+
+
+def _session_from_dict(data: dict):
     s = _engine.new_session()
     s.step = data.get("step", "welcome")
     s.candidate_ids = list(data.get("candidate_ids", []))
@@ -39,19 +54,24 @@ def _get_session():
     s.trend = data.get("trend", "")
     s.severity = data.get("severity", "")
     s.impact = data.get("impact", "")
+    s.age_group = data.get("age_group", "")
+    s.fever_level = data.get("fever_level", "")
+    s.medication = data.get("medication", "")
+    s.needs_red_flag = data.get("needs_red_flag", False)
+    s.match_scores = {int(k): float(v) for k, v in data.get("match_scores", {}).items()}
+    s.symptom_queries = list(data.get("symptom_queries", []))
     return s
 
 
+def _get_session():
+    if "mira" not in session:
+        s = _engine.new_session()
+        session["mira"] = _session_to_dict(s)
+    return _session_from_dict(session["mira"])
+
+
 def _save_session(s):
-    session["mira"] = {
-        "step": s.step,
-        "candidate_ids": s.candidate_ids,
-        "last_symptom": s.last_symptom,
-        "user_days": s.user_days,
-        "trend": s.trend,
-        "severity": s.severity,
-        "impact": s.impact,
-    }
+    session["mira"] = _session_to_dict(s)
 
 
 def _response_payload(result, step: str):
@@ -67,6 +87,8 @@ def _response_payload(result, step: str):
         "suggested_action": result.suggested_action,
         "matches": result.matches,
         "emergency": result.emergency,
+        "source": result.source,
+        "category": result.category,
     }
 
 
@@ -74,12 +96,12 @@ def _response_payload(result, step: str):
 
 @app.route("/styles.css")
 def site_styles():
-    return send_from_directory(ROOT, "styles.css")
+    return send_from_directory(ROOT, "styles.css", max_age=3600)
 
 
 @app.route("/site.js")
 def site_js():
-    return send_from_directory(ROOT, "site.js")
+    return send_from_directory(ROOT, "site.js", max_age=3600)
 
 
 @app.route("/<page>.html")
@@ -121,15 +143,7 @@ def health():
 def start_chat():
     session.pop("mira", None)
     s = _engine.new_session()
-    session["mira"] = {
-        "step": s.step,
-        "candidate_ids": s.candidate_ids,
-        "last_symptom": s.last_symptom,
-        "user_days": s.user_days,
-        "trend": s.trend,
-        "severity": s.severity,
-        "impact": s.impact,
-    }
+    session["mira"] = _session_to_dict(s)
     welcome = _engine.get_welcome()
     return jsonify(_response_payload(welcome, "welcome"))
 
@@ -144,7 +158,7 @@ def consult():
             {
                 "response": "Please provide a message.",
                 "done": False,
-                "step": _get_session().step,
+                "step": session.get("mira", {}).get("step", "welcome"),
             }
         ), 400
 

@@ -1,4 +1,6 @@
 (function () {
+  "use strict";
+
   const API = window.MIRA_API_BASE || "";
   const messagesEl = document.getElementById("chatMessages");
   const chipsEl = document.getElementById("quickReplies");
@@ -15,27 +17,39 @@
     welcome: 0,
     symptom: 0,
     symptom_extra: 0,
+    age_group: 0,
     duration: 1,
+    fever_check: 1,
     trend: 1,
     severity: 2,
+    red_flags: 2,
     impact: 2,
+    medication: 2,
     risk: 2,
     aftercare: 3,
     done: 3,
   };
 
+  const STATUS_LABELS = {
+    idle: "Ready to help",
+    thinking: "Thinking…",
+    speaking: "Speaking",
+    listening: "Listening…",
+    success: "Consultation complete",
+  };
+
   let busy = false;
+  let scrollRaf = 0;
+  let sessionPromise = null;
+  let typingTimer = 0;
+
+  function prefetchSession() {
+    sessionPromise = api("/start", { method: "POST" }).catch(() => null);
+  }
 
   function setVaState(state) {
     if (avatarWrap) avatarWrap.dataset.state = state;
-    const labels = {
-      idle: "Ready to help",
-      thinking: "Thinking…",
-      speaking: "Speaking",
-      listening: "Listening…",
-      success: "Consultation complete",
-    };
-    if (statusEl) statusEl.textContent = labels[state] || "";
+    if (statusEl) statusEl.textContent = STATUS_LABELS[state] || "";
     if (vaPanel) {
       vaPanel.dataset.thinking = state === "thinking" ? "true" : "false";
       vaPanel.dataset.showWaves = state === "listening" ? "true" : "false";
@@ -52,7 +66,12 @@
   }
 
   function scrollChat() {
-    if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+    if (!messagesEl) return;
+    if (scrollRaf) return;
+    scrollRaf = requestAnimationFrame(() => {
+      scrollRaf = 0;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
   }
 
   function formatBotText(text) {
@@ -61,7 +80,7 @@
       .replace(/\n/g, "<br>");
   }
 
-  function addMessage(text, role, extraClass) {
+  function createMessage(text, role, extraClass, staggerIndex) {
     const div = document.createElement("div");
     div.className = `msg msg-${role}${extraClass ? " " + extraClass : ""}`;
     if (role === "bot") {
@@ -69,6 +88,14 @@
     } else {
       div.textContent = text;
     }
+    if (staggerIndex > 0) {
+      div.style.animationDelay = `${staggerIndex * 45}ms`;
+    }
+    return div;
+  }
+
+  function addMessage(text, role, extraClass, staggerIndex) {
+    const div = createMessage(text, role, extraClass, staggerIndex ?? 0);
     messagesEl.appendChild(div);
     scrollChat();
     return div;
@@ -78,50 +105,53 @@
     if (chipsEl) chipsEl.innerHTML = "";
   }
 
-  function renderChips(suggestions, onPick) {
+  function renderChips(suggestions) {
     clearChips();
     if (!chipsEl || !suggestions || !suggestions.length) return;
 
-    suggestions.forEach((label) => {
+    const frag = document.createDocumentFragment();
+    suggestions.forEach((label, i) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "quick-chip";
       btn.textContent = label;
-      btn.addEventListener("click", () => {
-        if (busy) return;
-        onPick(label);
-      });
-      chipsEl.appendChild(btn);
+      btn.dataset.label = label;
+      if (i > 0) btn.style.animationDelay = `${Math.min(i * 30, 150)}ms`;
+      frag.appendChild(btn);
+    });
+    chipsEl.appendChild(frag);
+  }
+
+  if (chipsEl) {
+    chipsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest(".quick-chip");
+      if (!btn || busy) return;
+      inputEl.value = btn.dataset.label || btn.textContent;
+      onSend();
     });
   }
 
   function showEmergency(show) {
-    if (emergencyBanner) {
-      emergencyBanner.hidden = !show;
-    }
+    if (emergencyBanner) emergencyBanner.hidden = !show;
   }
 
-  async function delay(ms) {
-    return new Promise((r) => setTimeout(r, ms));
-  }
-
-  async function showBotDialog(data) {
-    const msgs = data.messages && data.messages.length ? data.messages : [data.response];
+  function showBotDialog(data) {
+    const msgs =
+      data.messages && data.messages.length ? data.messages : [data.response];
     setVaState("speaking");
 
-    for (let i = 0; i < msgs.length; i++) {
-      if (i > 0) await delay(420);
-      const isResult = data.done && data.condition && i === 0;
-      addMessage(msgs[i], "bot", isResult ? "msg-result" : "");
-    }
+    const frag = document.createDocumentFragment();
+    msgs.forEach((text, i) => {
+      const isResult = data.condition && data.step === "aftercare" && i === 0;
+      frag.appendChild(createMessage(text, "bot", isResult ? "msg-result" : "", i));
+    });
+    messagesEl.appendChild(frag);
+    scrollChat();
 
     if (data.emergency) showEmergency(true);
     if (data.input_hint && inputEl) inputEl.placeholder = data.input_hint;
 
-    renderChips(data.suggestions, (label) => {
-      inputEl.value = label;
-      onSend();
-    });
+    renderChips(data.suggestions);
 
     if (data.done && data.condition) {
       setVaState("success");
@@ -137,6 +167,7 @@
   }
 
   function showTyping() {
+    if (document.getElementById("typingIndicator")) return;
     const el = document.createElement("div");
     el.className = "msg msg-typing";
     el.id = "typingIndicator";
@@ -147,6 +178,7 @@
   }
 
   function hideTyping() {
+    clearTimeout(typingTimer);
     const el = document.getElementById("typingIndicator");
     if (el) el.remove();
   }
@@ -161,31 +193,33 @@
     return res.json();
   }
 
-  async function startSession() {
+  function startSession() {
+    if (sessionPromise) {
+      const p = sessionPromise;
+      sessionPromise = null;
+      return p;
+    }
     return api("/start", { method: "POST" });
   }
 
-  async function sendMessage(text) {
+  function sendMessage(text) {
     return api("/consult", {
       method: "POST",
       body: JSON.stringify({ message: text }),
     });
   }
 
-  async function handleBotReply(data) {
+  function handleBotReply(data) {
     hideTyping();
-    await showBotDialog(data);
+    showBotDialog(data);
 
-    if (data.done && data.condition) {
-      inputEl.disabled = true;
-      sendBtn.disabled = true;
-    } else {
-      inputEl.disabled = false;
-      sendBtn.disabled = false;
-    }
-
+    const locked = Boolean(data.done && data.condition);
+    inputEl.disabled = locked;
+    sendBtn.disabled = locked;
     busy = false;
-    if (!inputEl.disabled) inputEl.focus();
+
+    if (!locked) inputEl.focus();
+    prefetchSession();
   }
 
   async function onSend() {
@@ -199,12 +233,12 @@
 
     addMessage(text, "user");
     setVaState("listening");
-    await delay(180);
-    showTyping();
+
+    typingTimer = window.setTimeout(showTyping, 120);
 
     try {
       const data = await sendMessage(text);
-      await handleBotReply(data);
+      handleBotReply(data);
     } catch {
       hideTyping();
       setVaState("idle");
@@ -214,6 +248,7 @@
       );
       busy = false;
       sendBtn.disabled = false;
+      inputEl.focus();
     }
   }
 
@@ -230,10 +265,10 @@
     try {
       const data = await startSession();
       hideTyping();
-      await showBotDialog(data);
+      showBotDialog(data);
     } catch {
       hideTyping();
-      await showBotDialog({
+      showBotDialog({
         messages: [
           "Hello! I'm Dr. MIRA.",
           "Tell me your main symptom when you're ready.",
@@ -243,6 +278,7 @@
       });
     }
     inputEl.focus();
+    prefetchSession();
   }
 
   sendBtn.addEventListener("click", onSend);
@@ -252,7 +288,11 @@
       onSend();
     }
   });
-  restartBtn.addEventListener("click", () => init());
+  restartBtn.addEventListener("click", () => {
+    sessionPromise = null;
+    init();
+  });
 
+  prefetchSession();
   init();
 })();

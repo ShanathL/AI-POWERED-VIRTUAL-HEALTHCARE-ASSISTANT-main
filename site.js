@@ -4,6 +4,8 @@
   const yearEl = document.getElementById('year');
   const primaryCta = document.getElementById('primaryCta');
 
+  let scrollRaf = 0;
+
   function updateHeaderScrolled() {
     if (!siteHeader) return;
     siteHeader.classList.toggle('is-scrolled', window.scrollY > 8);
@@ -11,7 +13,13 @@
 
   if (siteHeader) {
     updateHeaderScrolled();
-    window.addEventListener('scroll', updateHeaderScrolled, { passive: true });
+    window.addEventListener('scroll', () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        updateHeaderScrolled();
+      });
+    }, { passive: true });
   }
 
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());

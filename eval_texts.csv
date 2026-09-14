@@ -1,12 +1,12 @@
-condition,symptoms,duration,severity,risk_factors,suggested_action
-GERD,"Heartburn, acid reflux",Chronic,Mild,"Spicy foods, obesity, smoking","Antacids, lifestyle changes"
-Heart Attack,"Chest pain, shortness of breath",Acute,Severe,"High cholesterol, smoking, stress",Emergency medical attention
-COVID-19,"Fever, cough, loss of taste/smell",7-14 days,Moderate,"Close contact, weak immunity","Isolation, rest, hydration, consult doctor"
-Depression,"Persistent sadness, loss of interest",Months-years,Moderate,"Stress, genetics, trauma","Therapy, medication, lifestyle changes"
-Kidney Stones,"Severe lower back pain, painful urination",Varies,Severe,"Dehydration, high salt diet","Hydration, pain relievers, medical removal if needed"
-Peptic Ulcer,"Stomach pain, bloating, nausea",Weeks,Moderate,"NSAIDs, stress, H. pylori infection","Antacids, antibiotics, avoid spicy food"
-Anemia,"Fatigue, pale skin, dizziness",Chronic,Moderate,"Poor diet, iron deficiency","Iron supplements, dietary changes"
-Strep Throat,"Sore throat, swollen lymph nodes",5-7 days,Moderate,"Close contact, shared utensils","Antibiotics, rest, hydration"
-Arthritis,"Joint pain, stiffness",Chronic,Moderate,"Aging, genetics, obesity","Pain relievers, physiotherapy, exercise"
-Asthma Attack,"Wheezing, shortness of breath",Varies,Severe,"Allergens, exercise, cold air","Inhaler, avoid triggers, seek emergency help if needed"
-Sinusitis,"Facial pain, nasal congestion",10-14 days,Mild,"Allergies, respiratory infections","Nasal spray, hydration, steam inhalation"
+condition,symptoms,duration,severity,risk_factors,suggested_action,category,source
+Influenza,Fever,cough,body aches,fatigue,chills,3-7 days,Moderate,Seasonal exposure,Rest fluids fever reducers,respiratory,CDC
+Migraine,Throbbing headache,nausea,light sensitivity,Hours to days,Moderate,Stress sleep loss,Rest dark room fluids,neurological,MedlinePlus
+Common Cold,Runny nose,sneezing,sore throat,mild cough,3-10 days,Mild,Crowded places,Rest fluids saline rinse,respiratory,NHS
+UTI,Frequent urination,burning urination,urgency,3-7 days,Mild,Dehydration,Hydration antibiotics if confirmed,urological,NHS
+Low Back Pain,Lower back pain,stiffness,muscle spasm,Days to weeks,Mild,Heavy lifting,Gentle movement heat OTC relief,musculoskeletal,NHS
+Panic Attack,Sudden fear,chest tightness,sweating,shortness of breath,Minutes,Severe,Anxiety disorder,Slow breathing grounding,mental_health,NHS
+GERD,Heartburn,acid reflux,chest discomfort after meals,Chronic,Mild,Spicy foods obesity,Smaller meals avoid triggers,gastrointestinal,MedlinePlus
+Lyme Disease,Bullseye rash,fever,joint pain,fatigue,Days to weeks,Moderate,Tick exposure,Remove ticks clinician antibiotics early,infectious,CDC
+Heat Exhaustion,Heavy sweating,weakness,nausea,headache,Hours,Moderate,Hot weather exertion,Cool place fluids rest,general,CDC
+Mononucleosis,Sore throat,fever,swollen glands,severe fatigue,2-4 weeks,Moderate,Teen young adult contact,Rest fluids avoid contact sports,infectious,CDC
+Heart Attack,Chest pain,shortness of breath,sweating,Acute,Severe,Smoking diabetes high cholesterol,Emergency services immediately,cardiovascular,CDC

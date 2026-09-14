@@ -4,10 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Consultation - MIRA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="{{ url_for('site_styles') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/assistant.css') }}"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Ojuju:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Ojuju:wght@600&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Ojuju:wght@600&display=swap"></noscript>
 </head>
 <body class="assistant-page">
 
@@ -51,7 +53,7 @@
           <a href="{{ url_for('site_page', page='faq') }}">FAQ</a>
           <a href="{{ url_for('site_page', page='contact_us') }}">Contact</a>
         </nav>
-        <div class="header-actions">
+        <div class="header-actions" data-auth="false">
           <a href="{{ url_for('assistant') }}" class="login-btn is-active">Consultation</a>
           <a href="{{ url_for('site_page', page='index') }}" class="signup-btn">Back</a>
         </div>
@@ -121,7 +123,7 @@
     </div>
   </main>
 
-  <script src="{{ url_for('site_js') }}"></script>
-  <script src="{{ url_for('static', filename='js/assistant.js') }}"></script>
+  <script src="{{ url_for('site_js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/assistant.js') }}" defer></script>
 </body>
 </html>
